@@ -24,11 +24,15 @@ window.INVITE = {
   /* ---------- Địa điểm ---------- */
   venue: {
     name: "Trường Đại học Tôn Đức Thắng",
-    hall: "",                                // để "" nếu không cần
+    hall: "Điểm hẹn: khu cỏ trước Tòa G",     // để "" nếu không cần
     address: "19 Nguyễn Hữu Thọ, Quận 7, TP. Hồ Chí Minh",
     // Từ khóa để Google Maps tìm đúng chỗ: tên trường, địa chỉ, hoặc tọa độ "21.0285,105.8542".
     mapQuery: "Đại học Tôn Đức Thắng, 19 Nguyễn Hữu Thọ, Quận 7",
     showMap: true,                           // false = ẩn khung bản đồ, chỉ giữ nút "Chỉ đường"
+    // Sơ đồ khuôn viên trường, có ghim điểm hẹn (vị trí ghim chỉnh trong index.html). Để "" = ẩn.
+    campusMap: "assets/img/campus-map.jpg",
+    // Ảnh lớn hiện khi chạm vào sơ đồ, có khoanh vùng điểm hẹn (vị trí vòng khoanh chỉnh trong index.html).
+    campusMapFull: "assets/img/campus-map-full.jpg",
   },
 
   /* ---------- Nhạc nền ---------- */

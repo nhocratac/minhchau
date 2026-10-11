@@ -320,6 +320,17 @@
           </div>
         </div>
         <div class="place__map" id="mapBox"></div>
+        <figure class="campus" id="campus">
+          <figcaption class="campus__title">Sơ đồ trong trường</figcaption>
+          <a class="campus__frame" id="campusLink" href="#" target="_blank" rel="noopener" aria-label="Mở sơ đồ khuôn viên cỡ lớn">
+            <img id="campusImg" alt="Sơ đồ khuôn viên Đại học Tôn Đức Thắng, điểm hẹn ở khu cỏ trước Tòa G" loading="lazy" width="1000" height="620">
+            <!-- Vị trí ghim: % theo chiều ngang / dọc của ảnh -->
+            <span class="campus__pin" style="left: 32.5%; top: 51.1%" aria-hidden="true">
+              <span class="campus__label">Gặp nhau ở đây 📸</span>
+            </span>
+          </a>
+          <p class="campus__hint">Chạm vào sơ đồ để xem bản đồ lớn</p>
+        </figure>
         <div class="btn-row">
           <a class="btn btn--primary" id="mapDirections" href="#" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
@@ -427,6 +438,29 @@
     </span>
   </button>
   <audio id="bgm" loop preload="auto"></audio>
+
+  <!-- Bản đồ khuôn viên cỡ lớn, có khoanh vùng điểm hẹn -->
+  <div class="lightbox" id="campusBox" role="dialog" aria-modal="true" aria-label="Sơ đồ khuôn viên, điểm hẹn ở Tòa G" hidden>
+    <div class="lightbox__panel">
+      <div class="lightbox__head">
+        <p class="lightbox__title">Điểm hẹn · Tòa G</p>
+        <button class="lightbox__close" id="campusClose" type="button" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="lightbox__scroll">
+        <div class="lightbox__map">
+          <img id="campusFullImg" alt="Sơ đồ khuôn viên Đại học Tôn Đức Thắng" width="1510" height="660">
+          <!-- Vòng khoanh: toạ độ theo pixel của ảnh campus-map-full.jpg (1510×660) -->
+          <svg class="lightbox__ring" viewBox="0 0 1510 660" preserveAspectRatio="none" aria-hidden="true">
+            <ellipse cx="330" cy="250" rx="185" ry="150" transform="rotate(-20 330 250)"/>
+          </svg>
+          <span class="lightbox__tag" style="left: 21.9%; top: 66%">Điểm hẹn · Tòa G 📸</span>
+        </div>
+      </div>
+      <p class="lightbox__hint">Vuốt ngang để xem cả khuôn viên</p>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

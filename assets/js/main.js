@@ -239,6 +239,33 @@
     box.appendChild(iframe);
   }
 
+  function setupCampusMap() {
+    if (!V.campusMap) { $("#campus").hidden = true; return; }
+    var full = V.campusMapFull || V.campusMap;
+    var box = $("#campusBox");
+    var link = $("#campusLink");
+    $("#campusImg").src = V.campusMap;
+    link.href = full;
+
+    function close() {
+      box.hidden = true;
+      document.body.classList.remove("is-locked");
+      link.focus();
+    }
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      var img = $("#campusFullImg");
+      if (!img.getAttribute("src")) img.src = full;
+      box.hidden = false;
+      document.body.classList.add("is-locked");
+      $(".lightbox__scroll", box).scrollLeft = 0;
+      $("#campusClose").focus();
+    });
+    $("#campusClose").addEventListener("click", close);
+    box.addEventListener("click", function (e) { if (e.target === box) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !box.hidden) close(); });
+  }
+
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
       return navigator.clipboard.writeText(text).catch(function () { return legacyCopy(text); });
@@ -690,6 +717,7 @@
     setupMap();
     setupCopy();
     setupContact();
+    setupCampusMap();
     setupMusic();
     setupRsvp();
     makeStars();
