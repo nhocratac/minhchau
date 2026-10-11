@@ -62,6 +62,6 @@ window.INVITE = {
     tapHint: "Chạm vào cánh cửa để mở thiệp",
     inviteLine: "Thân mời bạn đến dự",
     ceremony: ["Graduation", "Ceremony"],
-    closing: "Sự có mặt của bạn sẽ làm ngày đặc biệt này trọn vẹn hơn. Hẹn gặp bạn nhé!",
+    closing: "Thanh xuân của Châu có những trang sách, những mùa thi, và có cả mọi người. Ngày Châu tốt nghiệp, Châu không mong gì nhiều, chỉ mong được nhìn thấy mọi người ở đó, mỉm cười cùng Châu, và cùng Châu lưu lại một tấm hình. Vì có những khoảnh khắc chỉ đến một lần trong đời, và Châu muốn có bạn trong khoảnh khắc ấy. 💙",
   },
 };
