@@ -11,7 +11,7 @@ window.INVITE = {
     name: "Nguyễn Minh Châu",
     degree: "Cử nhân Luật",                  // để "" nếu không muốn hiện
     // Ảnh chân dung tỉ lệ 3:4 (vd 600x800). Bỏ ảnh vào assets/img/ rồi đổi tên ở đây.
-    photo: "assets/img/avatar.svg",          // vd: "assets/img/photo.jpg"
+    photo: "assets/img/photo.jpg",           // vd: "assets/img/photo.jpg"
   },
 
   /* ---------- Thời gian (giờ Việt Nam, +07:00) ---------- */
