@@ -761,6 +761,18 @@ legend.field__label { margin-bottom: 8px; }
   text-align: center;
 }
 .footer__script { font-family: var(--f-script); font-size: 54px; line-height: 1; color: var(--navy); }
+.note {
+  max-width: 360px;
+  padding: 22px 20px;
+  border: 1px solid rgba(255, 255, 255, .95);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .6);
+  box-shadow: var(--shadow-soft);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--navy-2);
+  text-wrap: pretty;
+}
 .footer__text { max-width: 330px; font-size: 15px; line-height: 1.75; color: var(--navy-2); text-wrap: balance; }
 .footer__name { font-family: var(--f-script); font-size: 32px; color: #3A6A95; }
 
