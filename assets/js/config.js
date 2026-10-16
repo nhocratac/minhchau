@@ -90,6 +90,9 @@ window.INVITE = {
     wrong: "Mật khẩu chưa đúng, bạn thử lại nhé.",
     locked: "Bạn nhập sai nhiều lần rồi, hãy thử lại sau một lúc nhé.",
     netError: "Mạng đang chập chờn, bạn thử lại nhé.",
+    submit: "Mở album",                      // chữ trên nút gửi mật khẩu
+    placeholder: "Mật khẩu",                 // chữ mờ trong ô nhập mật khẩu
+    empty: "Album đang được Châu cập nhật, bạn quay lại sau nhé!",   // khi mật khẩu đúng nhưng chưa có ảnh
   },
 
   /* ---------- Chữ trên thiệp ---------- */
