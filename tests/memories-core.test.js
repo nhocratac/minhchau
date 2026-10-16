@@ -27,7 +27,9 @@ test("mock getThanks", async () => {
 test("mock unlockAlbum", async () => {
   const r = await M.unlockAlbum({ endpoint: "" }, "demo");
   assert.strictEqual(r.ok, true);
-  assert.strictEqual(r.photos.length, 6);
+  assert.strictEqual(r.photos, undefined);
+  assert.deepStrictEqual(r.sections.map((s) => s.title), ["Ngày lễ", "Pregrad"]);
+  assert.deepStrictEqual(r.sections.map((s) => s.photos.length), [4, 2]);
   const w = await M.unlockAlbum({ endpoint: "" }, "sai");
   assert.deepStrictEqual(w, { ok: false, error: "wrong_password" });
 });

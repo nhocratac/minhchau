@@ -3,7 +3,7 @@
  *  Thiệp cảm ơn + Album ảnh (dùng chung web app với RSVP trong Code.gs)
  * =====================================================================
  *  - GET  ?action=thanks&k=<mã>        : lời cảm ơn + ảnh riêng của từng khách
- *  - POST action=album&password=<...>  : ảnh album, có mật khẩu
+ *  - POST action=album&password=<...>  : album chia phần theo thư mục con, có mật khẩu
  *  Dữ liệu khách nằm ở tab "CamOn" (xem THANKS_HEADERS). Mật khẩu album chỉ
  *  lưu trong Project Settings > Script Properties (ALBUM_PASSWORD), cùng
  *  ALBUM_FOLDER_ID là ID thư mục Drive chứa ảnh album.
@@ -89,20 +89,60 @@ function findGuest_(rows, idx, code) {
   return null;
 }
 
-/** Ảnh trong thư mục Drive, sắp theo tên, tối đa MAX_PHOTOS. Lỗi thì trả []. */
+/** Ảnh trong thư mục Drive, sắp theo tên, tối đa MAX_PHOTOS. Lỗi Drive thì ném lỗi. */
+function listPhotosOrThrow_(folderId) {
+  const files = DriveApp.getFolderById(folderId).getFiles();
+  const list = [];
+  while (files.hasNext()) {
+    const f = files.next();
+    if (String(f.getMimeType()).indexOf('image/') === 0) list.push({ id: f.getId(), name: f.getName() });
+  }
+  list.sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
+  return list.slice(0, MAX_PHOTOS).map(function (f) { return photoUrls_(f.id); });
+}
+
+/** Như trên nhưng nuốt lỗi: lỗi thì trả [] (dùng cho thiệp từng khách). */
 function listPhotos_(folderId) {
   try {
-    const files = DriveApp.getFolderById(folderId).getFiles();
-    const list = [];
-    while (files.hasNext()) {
-      const f = files.next();
-      if (String(f.getMimeType()).indexOf('image/') === 0) list.push({ id: f.getId(), name: f.getName() });
-    }
-    list.sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
-    return list.slice(0, MAX_PHOTOS).map(function (f) { return photoUrls_(f.id); });
+    return listPhotosOrThrow_(folderId);
   } catch (err) {
     return [];
   }
+}
+
+/** Tên thư mục -> tiêu đề phần: bỏ tiền tố số ("2. Pregrad" -> "Pregrad"). */
+function albumSectionTitle_(name) {
+  return String(name == null ? '' : name).replace(/^\s*\d+\s*[.)\-_]\s*/, '').trim();
+}
+
+/**
+ * Album chia phần: ảnh nằm trực tiếp trong thư mục album -> phần đầu (title ''),
+ * mỗi thư mục con trực tiếp -> một phần (sắp theo tên thư mục). Phần rỗng bị bỏ.
+ * Tổng tối đa MAX_PHOTOS ảnh (cắt phần sau). Lỗi Drive thì ném lỗi.
+ */
+function listAlbumSections_(folderId) {
+  const root = DriveApp.getFolderById(folderId);
+  const subs = [];
+  const it = root.getFolders();
+  while (it.hasNext()) {
+    const f = it.next();
+    subs.push({ id: f.getId(), name: String(f.getName()) });
+  }
+  subs.sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
+
+  const sections = [{ title: '', photos: listPhotosOrThrow_(folderId) }];
+  subs.forEach(function (f) {
+    sections.push({ title: albumSectionTitle_(f.name), photos: listPhotosOrThrow_(f.id) });
+  });
+
+  let left = MAX_PHOTOS;
+  const out = [];
+  sections.forEach(function (s) {
+    const photos = s.photos.slice(0, Math.max(left, 0));
+    left -= photos.length;
+    if (photos.length) out.push({ title: s.title, photos: photos });
+  });
+  return out;
 }
 
 /** Trả lời cho GET ?action=thanks. Mọi trường hợp không tìm thấy đều giống hệt nhau. */
@@ -151,16 +191,21 @@ function handleAlbumPost_(password) {
     return { ok: false, error: 'wrong_password' };
   }
 
-  let photos = null;
-  const hit = cache.get('album:photos');
+  let sections = null;
+  const hit = cache.get('album:sections');
   if (hit) {
-    try { photos = JSON.parse(hit); } catch (err) { photos = null; }
+    try { sections = JSON.parse(hit); } catch (err) { sections = null; }
   }
-  if (!photos) {
-    photos = listPhotos_(folderId);
-    try { cache.put('album:photos', JSON.stringify(photos), CACHE_SECONDS); } catch (err) { /* bỏ qua */ }
+  if (!sections) {
+    try {
+      sections = listAlbumSections_(folderId);
+    } catch (err) {
+      // Lỗi Drive: trả rỗng và KHÔNG cache để lần sau đọc lại
+      return { ok: true, sections: [] };
+    }
+    try { cache.put('album:sections', JSON.stringify(sections), CACHE_SECONDS); } catch (err) { /* bỏ qua */ }
   }
-  return { ok: true, photos: photos };
+  return { ok: true, sections: sections };
 }
 
 /**
@@ -202,7 +247,7 @@ function generateLinks() {
 /** Xoá cache ảnh album và ảnh từng khách (dùng khi vừa thêm/đổi ảnh trên Drive). */
 function clearMemoriesCache() {
   const cache = CacheService.getScriptCache();
-  cache.remove('album:photos');
+  cache.remove('album:sections');
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(THANKS_SHEET);
   if (sheet && sheet.getLastRow() > 1) {
     const idx = headerIndex_(sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]);

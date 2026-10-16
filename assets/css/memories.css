@@ -431,3 +431,14 @@
 .mem-pass__input:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 .mem-pass .mem-cta:disabled { opacity: .6; cursor: wait; transform: none; }
 .mem-album__title { margin-bottom: 18px; }
+.mem-album__section { margin-top: 28px; }
+.mem-album__section:first-child { margin-top: 0; }
+.mem-album__section-title {
+  margin: 0 0 12px;
+  font-family: var(--f-serif, "Playfair Display", serif);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--navy);
+  overflow-wrap: anywhere;
+}

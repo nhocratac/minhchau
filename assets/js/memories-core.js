@@ -9,7 +9,10 @@
 
   /* ---------- Dữ liệu tạm (chạy khi memories.endpoint = "") ---------- */
   function img(n) { return { thumb: "assets/img/mock/m" + n + ".svg", full: "assets/img/mock/m" + n + ".svg" }; }
-  var MOCK_ALBUM = [img(1), img(2), img(3), img(4), img(5), img(6)];
+  var MOCK_ALBUM = [
+    { title: "Ngày lễ", photos: [img(1), img(2), img(3), img(4)] },
+    { title: "Pregrad", photos: [img(5), img(6)] }
+  ];
   var MOCK_GUESTS = {
     demo: {
       name: "Lan Anh",
@@ -75,7 +78,7 @@
     if (!cfg || !cfg.endpoint) {
       return wait(MOCK_DELAY).then(function () {
         return password === MOCK_PASSWORD
-          ? { ok: true, photos: MOCK_ALBUM }
+          ? { ok: true, sections: MOCK_ALBUM }
           : { ok: false, error: "wrong_password" };
       });
     }

@@ -50,7 +50,7 @@ function makeSheet(name, rows) {
 /**
  * Nạp các file .gs vào cùng một vm context (như Apps Script dùng chung global scope).
  * @param files  đường dẫn file .gs
- * @param opts   { sheets: {tên: rows[][]}, folders: {id: [{id,name,mimeType}]}, props: {khoá: giá trị} }
+ * @param opts   { sheets: {tên: rows[][]}, folders: {id: [{id,name,mimeType}]}, subfolders: {id: [{id,name}]}, props: {khoá: giá trị} }
  * @returns context kèm __sheets, __cache, __alerts, __shared để test kiểm tra; __get(expr) đọc const/let.
  */
 function loadGas(files, opts) {
@@ -58,6 +58,7 @@ function loadGas(files, opts) {
   const sheets = {};
   Object.keys(opts.sheets || {}).forEach((n) => { sheets[n] = makeSheet(n, opts.sheets[n]); });
   const folders = opts.folders || {};
+  const subfolders = opts.subfolders || {};
   const props = opts.props || {};
   const cache = new Map();
   const alerts = [];
@@ -82,6 +83,18 @@ function loadGas(files, opts) {
       getFolderById(id) {
         if (!folders[id]) throw new Error('Không tìm thấy thư mục ' + id);
         return {
+          // Giống FolderIterator của Apps Script: hasNext() / next() -> Folder (getId, getName)
+          getFolders() {
+            let i = 0;
+            const list = subfolders[id] || [];
+            return {
+              hasNext: () => i < list.length,
+              next() {
+                const f = list[i++];
+                return { getId: () => f.id, getName: () => f.name };
+              },
+            };
+          },
           getFiles() {
             let i = 0;
             const list = folders[id];

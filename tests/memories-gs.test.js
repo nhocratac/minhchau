@@ -15,6 +15,25 @@ const folders = {
     { id: 'a', name: '01.jpg', mimeType: 'image/jpeg' },
   ],
   F: [{ id: 'x1', name: 'a.png', mimeType: 'image/png' }],
+  S: [{ id: 'r1', name: 'a.png', mimeType: 'image/png' }],
+  S2: [
+    { id: 'p2', name: 'b.jpg', mimeType: 'image/jpeg' },
+    { id: 'p1', name: 'a.jpg', mimeType: 'image/jpeg' },
+  ],
+  S1: [
+    { id: 'l3', name: '3.jpg', mimeType: 'image/jpeg' },
+    { id: 'l1', name: '1.jpg', mimeType: 'image/jpeg' },
+    { id: 'lv', name: '4.mp4', mimeType: 'video/mp4' },
+    { id: 'l2', name: '2.jpg', mimeType: 'image/jpeg' },
+  ],
+  S3: [{ id: 'z', name: 'v.mp4', mimeType: 'video/mp4' }],
+};
+const subfolders = {
+  S: [
+    { id: 'S2', name: '2. Pregrad' },
+    { id: 'S1', name: '1. Ngày lễ' },
+    { id: 'S3', name: '3. Trống' },
+  ],
 };
 const guestRow = ['Anh Nam', 'Cảm ơn anh\nnhiều', 'https://drive.google.com/drive/folders/F1?usp=sharing', 'a2b3c4d5e6', '', ''];
 
@@ -98,7 +117,7 @@ test('setupThanks tạo tab CamOn với tiêu đề', () => {
   assert.deepStrictEqual(plain(g.__sheets.CamOn.rows[0]), plain(g.__get('THANKS_HEADERS')));
 });
 
-const albumOpts = (props) => ({ folders, props });
+const albumOpts = (props) => ({ folders, subfolders, props });
 
 test('album: sai mật khẩu, khoá sau 10 lần, đúng mật khẩu', () => {
   const props = { ALBUM_PASSWORD: 'bi-mat', ALBUM_FOLDER_ID: 'F' };
@@ -110,9 +129,52 @@ test('album: sai mật khẩu, khoá sau 10 lần, đúng mật khẩu', () => {
   const g3 = loadGas(FILES, albumOpts(props));
   const ok = g3.handleAlbumPost_(' bi-mat ');
   assert.strictEqual(ok.ok, true);
-  assert.strictEqual(ok.photos.length, 1);
+  assert.strictEqual(ok.photos, undefined);
+  assert.strictEqual(ok.sections.length, 1);
+  assert.strictEqual(ok.sections[0].photos.length, 1);
   assert.ok(!JSON.stringify(ok).includes('bi-mat'));
   assert.ok(![...g3.__cache.values()].some((v) => v.includes('bi-mat')));
+});
+
+test('album: chia phần theo thư mục con', () => {
+  const g = loadGas(FILES, albumOpts({ ALBUM_PASSWORD: 'bi-mat', ALBUM_FOLDER_ID: 'S' }));
+  const r = plain(g.handleAlbumPost_('bi-mat'));
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(r.sections.map((s) => [s.title, s.photos.length]), [['', 1], ['Ngày lễ', 3], ['Pregrad', 2]]);
+  assert.deepStrictEqual(r.sections[1].photos.map((p) => p.thumb.split('/d/')[1]), ['l1=w1200', 'l2=w1200', 'l3=w1200']);
+  assert.ok(!JSON.stringify(r).includes('bi-mat'));
+  assert.ok(g.__cache.has('album:sections'));
+  g.clearMemoriesCache();
+  assert.ok(!g.__cache.has('album:sections'));
+});
+
+test('albumSectionTitle_ bỏ tiền tố số', () => {
+  const g = loadGas(FILES);
+  assert.strictEqual(g.albumSectionTitle_('2. Pregrad'), 'Pregrad');
+  assert.strictEqual(g.albumSectionTitle_('Pregrad'), 'Pregrad');
+  assert.strictEqual(g.albumSectionTitle_(' 10) Ngày lễ'), 'Ngày lễ');
+  assert.strictEqual(g.albumSectionTitle_('3-Gia đình'), 'Gia đình');
+});
+
+test('album: tối đa 300 ảnh toàn album, cắt phần sau', () => {
+  const mk = (p, n) => Array.from({ length: n }, (_, i) => ({ id: p + i, name: p + String(i).padStart(3, '0') + '.jpg', mimeType: 'image/jpeg' }));
+  const big = { R: mk('r', 100), A: mk('a', 150), B: mk('b', 150) };
+  const sub = { R: [{ id: 'A', name: '1. A' }, { id: 'B', name: '2. B' }] };
+  const g = loadGas(FILES, { folders: big, subfolders: sub, props: { ALBUM_PASSWORD: 'p', ALBUM_FOLDER_ID: 'R' } });
+  const r = plain(g.handleAlbumPost_('p'));
+  assert.deepStrictEqual(r.sections.map((s) => s.photos.length), [100, 150, 50]);
+});
+
+test('album: lỗi Drive trả sections rỗng và không bị cache', () => {
+  const live = { ...folders };
+  delete live.F;
+  const g = loadGas(FILES, { folders: live, subfolders, props: { ALBUM_PASSWORD: 'p', ALBUM_FOLDER_ID: 'F' } });
+  const r = plain(g.handleAlbumPost_('p'));
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(r.sections, []);
+  assert.ok(!g.__cache.has('album:sections'));
+  live.F = folders.F;
+  assert.strictEqual(g.handleAlbumPost_('p').sections.length, 1);
 });
 
 test('album: thiếu cấu hình', () => {
