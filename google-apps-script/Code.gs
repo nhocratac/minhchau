@@ -19,10 +19,13 @@ function setup() {
 }
 
 function doPost(e) {
+  const p = (e && e.parameter) || {};
+  // Album ảnh có mật khẩu (Memories.gs): không đụng tới trang tính RSVP nên không cần khoá
+  if (p.action === 'album') return json_(handleAlbumPost_(p.password));
+
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(10000);
-    const p = (e && e.parameter) || {};
     if (p.website) return json_({ ok: true }); // ô bẫy chống spam
 
     const name = clean_(p.name, 80);
@@ -56,7 +59,9 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+function doGet(e) {
+  // Lời cảm ơn riêng cho từng khách (Memories.gs)
+  if (e && e.parameter && e.parameter.action === 'thanks') return json_(handleThanksGet_(e.parameter.k));
   return json_({ ok: true, stats: stats_(getSheet_()) });
 }
 
