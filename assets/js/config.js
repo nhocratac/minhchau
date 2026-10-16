@@ -76,6 +76,11 @@ window.INVITE = {
     badLink: "Link chưa đúng rồi, bạn nhắn Châu giúp mình nhé.",
     netError: "Mạng đang chập chờn, bạn thử tải lại trang nhé.",
     music: true,                             // true = phát nhạc nền (dùng chung file nhạc ở mục music)
+    title: "Thank you",                      // chữ viết tay to ở màn mở đầu
+    nameFallback: "bạn",                     // dùng thay {ten} khi khách chưa có tên
+    ctaFallback: "Mở thư",                   // chữ dự phòng cho nút khi cta để trống
+    musicOn: "Tắt nhạc",                     // nhãn nút nhạc khi đang phát (bấm để tắt)
+    musicOff: "Bật nhạc",                    // nhãn nút nhạc khi đang tắt (bấm để bật)
   },
 
   /* ---------- Chữ trên trang album chung (có mật khẩu) ---------- */

@@ -10,13 +10,21 @@
   var G = C.graduate || {};
   var M = C.music || {};
   var Mem = window.Memories;
-  var reduceMotion = Mem.reduceMotion;
 
   function $(sel) { return document.querySelector(sel); }
   function show(el, text) {
     el.textContent = text == null ? "" : String(text);
     el.hidden = !el.textContent;
   }
+
+  // Không nạp được memories-core.js → báo lỗi thay vì kẹt ở chấm loading
+  if (!Mem) {
+    console.error("[Thiệp] Không tải được assets/js/memories-core.js.");
+    $("#loading").hidden = true;
+    show($("#status"), T.netError || "Mạng đang chập chờn, bạn thử tải lại trang nhé.");
+    return;
+  }
+  var reduceMotion = Mem.reduceMotion;
 
   /* ------------------------------------------------------------------
      1) Màn mở đầu
@@ -25,7 +33,8 @@
 
   if (T.eyebrow) { $("#eyebrow").textContent = T.eyebrow; $("#cardEyebrow").textContent = T.eyebrow; }
   show($("#line1"), T.line1);
-  $("#ctaText").textContent = T.cta || "Mở thư";
+  if (T.title != null) show($("#introTitle"), T.title);
+  $("#ctaText").textContent = T.cta || T.ctaFallback || "Mở thư";
   Mem.makeStars($("#stars"), reduceMotion);
 
   // line2: "{ten}" được thay bằng <span> chữ viết tay; mọi chữ đều gán bằng textContent.
@@ -55,7 +64,7 @@
      2) Nội dung: lời nhắn + ảnh
      ------------------------------------------------------------------ */
   function renderContent(guest) {
-    var name = String(guest.name || "");
+    var name = String(guest.name || "").trim() || T.nameFallback || "bạn";
     $("#guestName").textContent = name;
     $("#message").textContent = String(guest.message || "");
     show($("#closing"), T.closing);
@@ -100,7 +109,7 @@
     musicBtn.hidden = !musicOK;
     musicBtn.classList.toggle("is-playing", on);
     musicBtn.setAttribute("aria-pressed", String(on));
-    musicBtn.setAttribute("aria-label", on ? "Tắt nhạc" : "Bật nhạc");
+    musicBtn.setAttribute("aria-label", on ? (T.musicOn || "Tắt nhạc") : (T.musicOff || "Bật nhạc"));
   }
 
   function fadeVolume(to, ms) {
@@ -151,13 +160,15 @@
         "\n→ Kiểm tra music.src trong config.js.");
     });
     audio.src = M.src;
+    musicBtn.setAttribute("aria-label", T.musicOn || "Tắt nhạc");
     musicBtn.addEventListener("click", function () {
       if (wantPlay && !audio.paused) pauseMusic(); else playMusic();
     });
     // Tạm dừng khi chuyển tab / tắt màn hình, phát lại khi quay lại
     document.addEventListener("visibilitychange", function () {
       if (document.hidden) {
-        if (!audio.paused) { audio.pause(); resumeOnShow = true; }
+        // Dựa vào wantPlay (không phải audio.paused): play() lần đầu có thể còn đang chờ
+        if (wantPlay) { audio.pause(); resumeOnShow = true; }
       } else if (resumeOnShow && wantPlay) {
         resumeOnShow = false;
         audio.play().catch(function () { setMusicUI(false); wantPlay = false; });
@@ -211,7 +222,8 @@
         showStatus(err === "not_found" ? T.badLink : T.netError);
         return;
       }
-      renderLine2(String(res.guest.name || ""));
+      var name = String(res.guest.name || "").trim() || T.nameFallback || "bạn";
+      renderLine2(name);
       renderContent(res.guest);
       loading.hidden = true;
       cta.hidden = false;
