@@ -44,19 +44,19 @@
     opts = opts || {};
     var doFetch = opts.fetch || (root.fetch && root.fetch.bind(root));
     var timeoutMs = opts.timeoutMs == null ? 15000 : opts.timeoutMs;
-    var NET = { ok: false, error: "network" };
+    var NET = function () { return { ok: false, error: "network" }; };
     var timer;
     var timeout = new Promise(function (resolve) {
-      timer = setTimeout(function () { resolve(NET); }, timeoutMs);
+      timer = setTimeout(function () { resolve(NET()); }, timeoutMs);
     });
     var call = Promise.resolve()
       .then(function () { return doFetch(url, init); })
       .then(function (res) {
-        if (!res || !res.ok) return NET;
+        if (!res || !res.ok) return NET();
         return res.json();
       })
-      .then(function (data) { return data && typeof data === "object" ? data : NET; })
-      .catch(function () { return NET; });
+      .then(function (data) { return data && typeof data === "object" ? data : NET(); })
+      .catch(function () { return NET(); });
     return Promise.race([call, timeout]).then(function (r) { clearTimeout(timer); return r; });
   }
 
@@ -114,8 +114,11 @@
     box.appendChild(frag);
   }
 
+  var closeCurrent = null;   // đóng lightbox đang mở (chỉ cho phép một cái)
+
   function openLightbox(photos, index) {
     if (!photos || !photos.length) return;
+    if (closeCurrent) closeCurrent();
     var i = Math.max(0, Math.min(index || 0, photos.length - 1));
     var opener = document.activeElement;
 
@@ -162,6 +165,7 @@
       document.removeEventListener("keydown", onKey);
       if (box.parentNode) box.parentNode.removeChild(box);
       document.body.style.overflow = prevOverflow;
+      closeCurrent = null;
       if (opener && opener.focus) opener.focus();
     }
     function onKey(e) {
@@ -176,7 +180,8 @@
     box.addEventListener("click", function (e) { if (e.target === box) shut(); });
 
     var x0 = null;
-    box.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener("touchstart", function (e) { x0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+    box.addEventListener("touchcancel", function () { x0 = null; }, { passive: true });
     box.addEventListener("touchend", function (e) {
       if (x0 === null) return;
       var dx = e.changedTouches[0].clientX - x0;
@@ -186,6 +191,7 @@
 
     var prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeCurrent = shut;
     document.addEventListener("keydown", onKey);
     document.body.appendChild(box);
     show();
