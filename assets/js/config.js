@@ -59,6 +59,34 @@ window.INVITE = {
     showStats: true,                         // hiện tỉ lệ % sau khi gửi (giống video mẫu)
   },
 
+  /* ---------- Thiệp cảm ơn & Album ảnh (trang cam-on.html và album.html) ---------- */
+  memories: {
+    // Dán URL Web App của Google Apps Script (giống rsvp.endpoint). Để "" = chạy bằng ảnh tạm, không có dữ liệu thật.
+    endpoint: "",
+  },
+
+  /* ---------- Chữ trên trang cảm ơn (mỗi khách một link riêng) ---------- */
+  thanks: {
+    eyebrow: "Thư cảm ơn",
+    line1: "Lễ tốt nghiệp của Châu đã diễn ra thật trọn vẹn…",
+    line2: "và {ten} đã góp phần làm cho ngày ấy thêm ý nghĩa.",   // {ten} = tên khách, tự điền
+    cta: "Cùng nhìn lại khoảnh khắc này nhé",
+    closing: "Cảm ơn bạn rất nhiều. Hẹn gặp lại bạn nhé! 💙",
+    noPhotos: "Ảnh đang được Châu cập nhật, bạn quay lại sau nhé!",
+    badLink: "Link chưa đúng rồi, bạn nhắn Châu giúp mình nhé.",
+    netError: "Mạng đang chập chờn, bạn thử tải lại trang nhé.",
+    music: true,                             // true = phát nhạc nền (dùng chung file nhạc ở mục music)
+  },
+
+  /* ---------- Chữ trên trang album chung (có mật khẩu) ---------- */
+  album: {
+    title: "Album ngày tốt nghiệp",
+    hint: "Nhập mật khẩu để xem album",
+    wrong: "Mật khẩu chưa đúng, bạn thử lại nhé.",
+    locked: "Bạn nhập sai nhiều lần rồi, hãy thử lại sau một lúc nhé.",
+    netError: "Mạng đang chập chờn, bạn thử lại nhé.",
+  },
+
   /* ---------- Chữ trên thiệp ---------- */
   text: {
     eyebrow: "Thư mời tham dự",
