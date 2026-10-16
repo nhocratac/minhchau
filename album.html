@@ -70,9 +70,9 @@
       <h1 class="mem-intro__script" id="albumTitle"></h1>
       <p class="mem-intro__line" id="hint"></p>
     </div>
-    <form class="mem-intro__action mem-pass" id="form" autocomplete="off" novalidate>
+    <form class="mem-intro__action mem-pass" id="form" autocomplete="off" novalidate onsubmit="return false">
       <label class="mem-pass__label" for="pw" id="pwLabel">Mật khẩu</label>
-      <input class="mem-pass__input" id="pw" name="password" type="password" autocomplete="current-password" required>
+      <input class="mem-pass__input" id="pw" type="password" autocomplete="current-password" required>
       <button class="mem-cta" id="submit" type="submit">
         <svg class="mem-cta__spark" aria-hidden="true"><use href="#i-sparkle"/></svg>
         <span id="submitText"></span>
@@ -89,7 +89,7 @@
       <svg class="lily lily--c"><use href="#i-lily"/></svg>
     </div>
     <section class="mem-section" aria-label="Album ảnh">
-      <h2 class="mem-card__name" id="pageTitle"></h2>
+      <h2 class="mem-card__name mem-album__title" id="pageTitle"></h2>
       <div class="mem-grid" id="grid"></div>
       <p class="mem-empty" id="noPhotos" hidden></p>
     </section>

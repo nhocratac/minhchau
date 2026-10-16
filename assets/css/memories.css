@@ -430,4 +430,4 @@
 }
 .mem-pass__input:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 .mem-pass .mem-cta:disabled { opacity: .6; cursor: wait; transform: none; }
-.mem-page .mem-card__name { margin-bottom: 18px; }
+.mem-album__title { margin-bottom: 18px; }

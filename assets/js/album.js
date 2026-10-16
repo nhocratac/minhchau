@@ -114,9 +114,11 @@
         }
         var err = (res && res.error) || "network";
         console.info("[Thiệp] Không mở được album: " + err);
-        show(statusEl, err === "wrong_password" ? A.wrong
-          : err === "too_many_attempts" ? A.locked : A.netError);
-        if (err === "wrong_password") { pw.select(); }
+        var net = A.netError || "Mạng đang chập chờn, bạn thử lại nhé.";
+        show(statusEl, err === "wrong_password" ? (A.wrong || net)
+          : err === "too_many_attempts" ? (A.locked || net) : net);
+        if (err === "wrong_password") pw.select();
+        else if (err === "too_many_attempts") pw.value = "";
       });
   });
 })();
