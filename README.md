@@ -28,7 +28,10 @@ thiep-tot-nghiep/
 │   ├── img/avatar.svg         ← ảnh mẫu, thay bằng ảnh của bạn
 │   ├── img/og-cover.jpg       ← ảnh hiện khi chia sẻ link
 │   └── music/                 ← ★ bỏ file music.mp3 vào đây
+├── cam-on.html                ← trang thiệp cảm ơn riêng từng khách (mục 9)
+├── album.html                 ← trang album gia đình có mật khẩu (mục 9)
 ├── google-apps-script/Code.gs ← code lưu RSVP vào Google Sheet
+├── google-apps-script/Memories.gs ← code cho thiệp cảm ơn + album (mục 9)
 └── .nojekyll                  ← giúp GitHub Pages phục vụ đúng file
 ```
 
@@ -142,3 +145,59 @@ Hoặc dùng dòng lệnh: `npm i -g vercel`, rồi chạy `vercel` trong thư m
 **Muốn bỏ bản đồ nhúng?** Đặt `venue.showMap: false`; nút *Chỉ đường* vẫn giữ.
 
 **Muốn bỏ hẳn RSVP?** Đặt `rsvp.enabled: false`.
+
+## 9. Thiệp cảm ơn & Album kỷ niệm
+
+Hai trang mới, dùng chung Google Sheet và Apps Script với RSVP:
+
+- `cam-on.html?k=<mã>`: thiệp cảm ơn riêng cho từng khách, có lời nhắn của Châu và 2–3 ảnh của khách đó.
+- `album.html`: album gia đình có mật khẩu, tự chia thành các phần theo thư mục con trên Google Drive.
+
+**Chưa kết nối Sheet thì hai trang chạy chế độ demo** (chỉ có ảnh mẫu): mở `cam-on.html?k=demo`; album dùng mật khẩu `demo`.
+
+### 9.1. Chủ tài khoản làm một lần
+
+1. Trên Google Drive, tạo thư mục **Thiệp cảm ơn** (bên trong sẽ có một thư mục con cho mỗi khách) và thư mục **Album**.
+2. Với cả hai thư mục cha: chuột phải → **Chia sẻ** → *Quyền truy cập chung* → **Bất kỳ ai có đường liên kết – Người xem** (chỉ cần đặt một lần). Chia sẻ thêm cho Châu với quyền **Người chỉnh sửa** (Editor).
+3. Mở Google Sheet RSVP → **Tiện ích mở rộng → Apps Script**. Bấm dấu **+** cạnh *Tệp* → **Tập lệnh**, đặt tên `Memories`, rồi dán toàn bộ nội dung `google-apps-script/Memories.gs`.
+4. Mở `Code.gs`, xóa nội dung cũ và dán lại toàn bộ `google-apps-script/Code.gs` mới (bản mới có thêm phần chuyển yêu cầu sang `Memories.gs`), bấm **Lưu**.
+5. Chọn hàm `setupThanks` trên thanh công cụ → **Chạy** → cấp quyền, lần này có thêm quyền truy cập Google Drive. Sheet sẽ có thêm trang tính **CamOn**.
+6. Vào **Cài đặt dự án** (Project Settings, biểu tượng bánh răng) → **Thuộc tính tập lệnh** (Script Properties) → thêm hai dòng:
+   - `ALBUM_PASSWORD`: mật khẩu album (tự đặt).
+   - `ALBUM_FOLDER_ID`: ID của thư mục cha **Album** (đoạn cuối của link, sau `/folders/`).
+7. Bấm **Triển khai → Quản lý triển khai → ✏️** (sửa triển khai hiện có) → *Phiên bản*: **Phiên bản mới** → **Triển khai**. **Không** tạo triển khai mới, vì URL sẽ đổi và RSVP ngừng chạy.
+8. Trong `assets/js/config.js`, đặt `memories.endpoint` bằng **đúng URL** của `rsvp.endpoint` (dạng `https://script.google.com/macros/s/…/exec`).
+9. Tải lại Google Sheet, sẽ thấy menu **Thiệp cảm ơn**.
+
+Lưu ý bảo mật: repo này là **public**, vì vậy **không** ghi mật khẩu album hay ID thư mục vào code, README hay config.js. Chúng chỉ nằm trong Script Properties. Chỉ gửi link `album.html` và mật khẩu riêng cho gia đình (nhắn tin riêng, không đăng nhóm công khai). Nhập sai mật khẩu 10 lần thì album khóa khoảng 10 phút.
+
+### 9.2. Châu làm cho mỗi khách
+
+1. Trong thư mục **Thiệp cảm ơn** trên Drive, tạo thư mục con theo tên khách và bỏ vào 2–3 ảnh **JPG**. Ảnh chụp nhóm thì sao chép vào thư mục của từng người.
+2. Mở Google Sheet, vào trang tính **CamOn**, điền một dòng cho khách:
+   - `Tên gọi`: cách gọi khách trên thiệp (ví dụ *chị Lan*).
+   - `Lời chúc`: lời nhắn riêng của Châu.
+   - `Thư mục ảnh`: dán link thư mục của khách (chuột phải thư mục → Chia sẻ → Sao chép đường liên kết).
+3. Bấm menu **Thiệp cảm ơn → Tạo mã & link**. Cột `Mã` và `Link` tự được điền.
+4. Sao chép cột `Link` gửi cho khách qua Zalo.
+
+Mã của khách **không bao giờ đổi** sau khi đã tạo, nên link gửi rồi vẫn dùng được khi Châu sửa lời hay thêm ảnh.
+
+### 9.3. Khi thêm hoặc đổi nội dung
+
+- Thêm/đổi ảnh, hoặc sửa `Tên gọi`/`Lời chúc` xong, bấm **Thiệp cảm ơn → Làm mới cache ảnh**. Nếu không, thay đổi có thể mất tới **6 giờ** mới hiện.
+- Ảnh không hiện trên thiệp hoặc album: bấm **Thiệp cảm ơn → Bật chia sẻ ảnh (dự phòng)**.
+
+### 9.4. Album chia phần theo thư mục
+
+- Mỗi **thư mục con** bên trong **Album** là một phần của trang album, sắp theo tên thư mục. Ví dụ `1. Ngày lễ` và `2. Pregrad` hiện thành hai phần **Ngày lễ** và **Pregrad** (tiền tố số `1. `, `2. ` được ẩn đi).
+- Ảnh để thẳng trong thư mục **Album** (không nằm trong thư mục con) tạo thành phần đầu tiên, không có tiêu đề.
+- Muốn đổi thứ tự thì đổi số đầu tên thư mục. Vì sắp xếp theo thứ tự chữ cái, nếu có từ 10 phần trở lên hãy dùng `01. `, `02. `, … (nếu không `10. ` sẽ đứng trước `2. `).
+- Tránh đặt tiêu đề bắt đầu bằng năm rồi tới dấu `.` hoặc `-` (ví dụ `2024. Pregrad`), vì phần số đó cũng bị coi là tiền tố và bị ẩn.
+- Album hiện tối đa 300 ảnh; phần rỗng không hiện.
+
+### 9.5. Lưu ý về ảnh
+
+- Ưu tiên ảnh **JPG**. Ảnh HEIC (iPhone) có thể không hiển thị, hãy đổi sang JPG trước khi tải lên.
+- Chưa hỗ trợ video.
+- Chữ trên hai trang sửa trong `config.js` ở các mục `thanks` và `album`.
