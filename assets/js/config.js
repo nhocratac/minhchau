@@ -63,6 +63,8 @@ window.INVITE = {
   memories: {
     // Dán URL Web App của Google Apps Script (giống rsvp.endpoint). Để "" = chạy bằng ảnh tạm, không có dữ liệu thật.
     endpoint: "",
+    // Chữ nút tải ảnh trong khung xem ảnh lớn.
+    download: "Tải ảnh",
   },
 
   /* ---------- Chữ trên trang cảm ơn (mỗi khách một link riêng) ---------- */

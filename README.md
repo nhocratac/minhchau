@@ -165,7 +165,7 @@ Hai trang mới, dùng chung Google Sheet và Apps Script với RSVP:
 6. Vào **Cài đặt dự án** (Project Settings, biểu tượng bánh răng) → **Thuộc tính tập lệnh** (Script Properties) → thêm hai dòng:
    - `ALBUM_PASSWORD`: mật khẩu album (tự đặt).
    - `ALBUM_FOLDER_ID`: ID của thư mục cha **Album** (đoạn cuối của link, sau `/folders/`).
-7. Bấm **Triển khai → Quản lý triển khai → ✏️** (sửa triển khai hiện có) → *Phiên bản*: **Phiên bản mới** → **Triển khai**. **Không** tạo triển khai mới, vì URL sẽ đổi và RSVP ngừng chạy.
+7. ⚠️ Bước 5 (chạy `setupThanks` và cấp quyền Drive) **phải xong trước bước này**, nếu không toàn bộ web app, kể cả RSVP, sẽ báo lỗi xin quyền. Bấm **Triển khai → Quản lý triển khai → ✏️** (sửa triển khai hiện có) → *Phiên bản*: **Phiên bản mới** → **Triển khai**. **Không** tạo triển khai mới, vì URL sẽ đổi và RSVP ngừng chạy.
 8. Trong `assets/js/config.js`, đặt `memories.endpoint` bằng **đúng URL** của `rsvp.endpoint` (dạng `https://script.google.com/macros/s/…/exec`).
 9. Tải lại Google Sheet, sẽ thấy menu **Thiệp cảm ơn**.
 

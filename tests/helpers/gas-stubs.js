@@ -8,6 +8,7 @@ const crypto = require('node:crypto');
 function makeSheet(name, rows) {
   const sheet = {
     rows: (rows || []).map((r) => r.slice()),
+    numberFormats: [],
     getName: () => name,
     getLastRow: () => sheet.rows.length,
     getLastColumn: () => sheet.rows.reduce((m, r) => Math.max(m, r.length), 0),
@@ -38,6 +39,7 @@ function makeSheet(name, rows) {
           }
           return range;
         },
+        setNumberFormat(fmt) { sheet.numberFormats.push([r, c, nr, nc, fmt]); return range; },
         setFontWeight: () => range,
         setBackground: () => range,
       };

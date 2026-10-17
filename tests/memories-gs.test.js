@@ -202,3 +202,29 @@ test('routing action: thanks (GET) và album (POST) không đụng RSVP', () => 
   assert.strictEqual(body(g.doPost({ parameter: { action: 'album', password: 'x' } })).error, 'wrong_password');
   assert.strictEqual(g.__sheets.RSVP.rows.length, 0);
 });
+
+test('shareAllPhotos: chia sẻ cả ảnh trong thư mục con của album', () => {
+  const g = loadGas(FILES, { sheets: { CamOn: [HEAD] }, folders, subfolders, props: { ALBUM_FOLDER_ID: 'S' } });
+  g.shareAllPhotos();
+  const ids = g.__shared.map((x) => x[0]);
+  ['r1', 'l1', 'l2', 'l3', 'lv', 'p1', 'p2', 'z'].forEach((id) => assert.ok(ids.includes(id), id));
+});
+
+test('ảnh khách: lỗi Drive không bị cache, lần sau đọc lại được', () => {
+  const live = { ...folders };
+  delete live.F1;
+  const g = loadGas(FILES, { sheets: { CamOn: [HEAD, guestRow] }, folders: live });
+  const r1 = plain(g.handleThanksGet_('a2b3c4d5e6'));
+  assert.strictEqual(r1.ok, true);
+  assert.strictEqual(r1.guest.name, 'Anh Nam');
+  assert.deepStrictEqual(r1.guest.photos, []);
+  assert.ok(!g.__cache.has('g:a2b3c4d5e6'));
+  live.F1 = folders.F1;
+  assert.strictEqual(plain(g.handleThanksGet_('a2b3c4d5e6')).guest.photos.length, 2);
+});
+
+test('generateLinks ép cột Mã là văn bản (@)', () => {
+  const g = loadGas(FILES, { sheets: { CamOn: [HEAD, ['A', '', '', '', '', '']] } });
+  g.generateLinks();
+  assert.ok(g.__sheets.CamOn.numberFormats.some((f) => f[1] === 4 && f[4] === '@'));
+});

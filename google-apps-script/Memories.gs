@@ -166,10 +166,17 @@ function handleThanksGet_(code) {
   if (!guest) return notFound;
 
   const folderId = folderIdFromUrl_(guest.folder);
+  let photos = [];
+  let driveFailed = false;
+  if (folderId) {
+    try { photos = listPhotosOrThrow_(folderId); } catch (err) { driveFailed = true; }
+  }
   const result = {
     ok: true,
-    guest: { name: guest.name, message: guest.message, photos: folderId ? listPhotos_(folderId) : [] },
+    guest: { name: guest.name, message: guest.message, photos: photos },
   };
+  // Lỗi Drive: vẫn trả tên/lời chúc nhưng KHÔNG cache để lần sau đọc lại ảnh
+  if (driveFailed) return result;
   try { cache.put('g:' + code, JSON.stringify(result), CACHE_SECONDS); } catch (err) { /* quá cỡ cache: bỏ qua */ }
   return result;
 }
@@ -240,7 +247,8 @@ function generateLinks() {
     codes.push([code]);
     links.push([code ? SITE_URL + 'cam-on.html?k=' + code : '']);
   });
-  sheet.getRange(2, idx['Mã'] + 1, n, 1).setValues(codes);
+  // Ép cột Mã là văn bản thuần để Sheets không tự đổi mã thành số
+  sheet.getRange(2, idx['Mã'] + 1, n, 1).setNumberFormat('@').setValues(codes);
   sheet.getRange(2, idx['Link'] + 1, n, 1).setValues(links);
 }
 
@@ -274,6 +282,17 @@ function shareAllPhotos() {
         if (id && folderIds.indexOf(id) < 0) folderIds.push(id);
       });
     }
+  }
+
+  // Album chia phần: ảnh nằm trong các thư mục con trực tiếp (một cấp, như listAlbumSections_)
+  if (album) {
+    try {
+      const subs = DriveApp.getFolderById(album).getFolders();
+      while (subs.hasNext()) {
+        const sid = subs.next().getId();
+        if (folderIds.indexOf(sid) < 0) folderIds.push(sid);
+      }
+    } catch (err) { /* lỗi Drive: bỏ qua, thư mục album vẫn được xử lý bên dưới */ }
   }
 
   let ok = 0, failed = 0;

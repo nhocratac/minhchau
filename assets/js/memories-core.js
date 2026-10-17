@@ -147,7 +147,9 @@
     pic.alt = "";
     var dl = document.createElement("a");
     dl.className = "mem-lightbox__dl";
-    dl.textContent = "Tải ảnh";
+    // Chữ lấy từ config (memories.download), đọc lúc cần để Node nạp file vẫn chạy
+    var cfg = typeof window !== "undefined" && window.INVITE && window.INVITE.memories;
+    dl.textContent = (cfg && cfg.download) || "Tải ảnh";
     dl.target = "_blank";
     dl.rel = "noopener";
     box.appendChild(pic);
