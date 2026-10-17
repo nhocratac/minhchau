@@ -59,7 +59,7 @@ test('folderIdFromUrl_', () => {
 test('photoUrls_', () => {
   const g = loadGas(FILES);
   assert.deepStrictEqual(plain(g.photoUrls_('ID')), {
-    thumb: 'https://lh3.googleusercontent.com/d/ID=w1200',
+    thumb: 'https://lh3.googleusercontent.com/d/ID=w800',
     full: 'https://lh3.googleusercontent.com/d/ID=w2400',
   });
 });
@@ -70,7 +70,7 @@ test('handleThanksGet_ trả khách, giữ xuống dòng, chỉ ảnh, sắp the
   assert.strictEqual(r.ok, true);
   assert.strictEqual(r.guest.name, 'Anh Nam');
   assert.strictEqual(r.guest.message, 'Cảm ơn anh\nnhiều');
-  assert.deepStrictEqual(r.guest.photos.map((p) => p.thumb.split('/d/')[1]), ['a=w1200', 'b=w1200']);
+  assert.deepStrictEqual(r.guest.photos.map((p) => p.thumb.split('/d/')[1]), ['a=w800', 'b=w800']);
 });
 
 test('mã không có / sai định dạng / rỗng đều trả not_found giống hệt', () => {
@@ -141,7 +141,7 @@ test('album: chia phần theo thư mục con', () => {
   const r = plain(g.handleAlbumPost_('bi-mat'));
   assert.strictEqual(r.ok, true);
   assert.deepStrictEqual(r.sections.map((s) => [s.title, s.photos.length]), [['', 1], ['Ngày lễ', 3], ['Pregrad', 2]]);
-  assert.deepStrictEqual(r.sections[1].photos.map((p) => p.thumb.split('/d/')[1]), ['l1=w1200', 'l2=w1200', 'l3=w1200']);
+  assert.deepStrictEqual(r.sections[1].photos.map((p) => p.thumb.split('/d/')[1]), ['l1=w800', 'l2=w800', 'l3=w800']);
   assert.ok(!JSON.stringify(r).includes('bi-mat'));
   assert.ok(g.__cache.has('album:sections'));
   g.clearMemoriesCache();

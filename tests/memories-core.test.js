@@ -77,3 +77,28 @@ test("unlockAlbum: lỗi server được chuyển tiếp, reject -> network", as
   const r = await M.unlockAlbum({ endpoint: "https://x/exec" }, "p", { fetch: () => Promise.reject(new Error("x")) });
   assert.strictEqual(r.error, "network");
 });
+
+test("loadImage thử lại 3 lần (1,5s / 4s / 10s) rồi dừng", () => {
+  const img = { src: "", onerror: null };
+  const delays = [];
+  const fakeTimer = (fn, ms) => { delays.push(ms); img.src = ""; fn(); };
+  const url = "https://lh3.googleusercontent.com/d/ID=w800";
+  M.loadImage(img, url, { setTimeout: fakeTimer });
+  assert.strictEqual(img.src, url);
+  for (let k = 0; k < 3; k++) { img.onerror(); assert.strictEqual(img.src, url); }
+  img.onerror();
+  assert.strictEqual(img.onerror, null);
+  assert.deepStrictEqual(delays, [1500, 4000, 10000]);
+});
+
+test("loadImage bỏ qua lỗi của ảnh cũ khi đã đổi sang ảnh khác", () => {
+  const img = { src: "", onerror: null };
+  const timers = [];
+  const lateTimer = (fn) => timers.push(fn);
+  M.loadImage(img, "https://lh3.googleusercontent.com/d/A=w2400", { setTimeout: lateTimer });
+  const oldOnError = img.onerror;
+  M.loadImage(img, "https://lh3.googleusercontent.com/d/B=w2400", { setTimeout: lateTimer });
+  oldOnError();
+  timers.forEach((fn) => fn());
+  assert.strictEqual(img.src, "https://lh3.googleusercontent.com/d/B=w2400");
+});

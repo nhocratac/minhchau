@@ -117,6 +117,24 @@
     box.appendChild(frag);
   }
 
+  /* Ảnh từ Google đôi khi bị chặn tạm (lỗi 429) khi tải nhiều ảnh liên tục.
+     Thử lại sau 1,5 giây, 4 giây rồi 10 giây. (Link drive.google.com/thumbnail
+     cũng chuyển về cùng máy chủ lh3 nên không dùng làm dự phòng được.) */
+  var RETRY_DELAYS = [1500, 4000, 10000];
+
+  function loadImage(img, url, opts) {
+    var later = (opts && opts.setTimeout) || setTimeout;
+    var tries = 0;
+    var token = {};
+    img._memToken = token;
+    img.onerror = function () {
+      if (img._memToken !== token) return;          // ảnh đã được đổi sang ảnh khác
+      if (tries >= RETRY_DELAYS.length) { img.onerror = null; return; }
+      later(function () { if (img._memToken === token) img.src = url; }, RETRY_DELAYS[tries++]);
+    };
+    img.src = url;
+  }
+
   var closeCurrent = null;   // đóng lightbox đang mở (chỉ cho phép một cái)
 
   function openLightbox(photos, index) {
@@ -159,7 +177,7 @@
     box.appendChild(dl);
 
     function show() {
-      pic.src = photos[i].full;
+      loadImage(pic, photos[i].full);
       dl.href = photos[i].full;
       var single = photos.length < 2;
       prev.hidden = single;
@@ -212,6 +230,7 @@
     MOCK_ALBUM: MOCK_ALBUM,
     makeStars: makeStars,
     openLightbox: openLightbox,
+    loadImage: loadImage,
     reduceMotion: reduceMotion
   };
 

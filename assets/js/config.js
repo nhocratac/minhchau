@@ -62,7 +62,7 @@ window.INVITE = {
   /* ---------- Thiệp cảm ơn & Album ảnh (trang cam-on.html và album.html) ---------- */
   memories: {
     // Dán URL Web App của Google Apps Script (giống rsvp.endpoint). Để "" = chạy bằng ảnh tạm, không có dữ liệu thật.
-    endpoint: "",
+    endpoint: "https://script.google.com/macros/s/AKfycbywbFZJg2X2vRvjFzeRkPjo-WbGGDrmYBrcoviDukCLSQfy8MzIoWTBx--6Xwer93bmag/exec",
     // Chữ nút tải ảnh trong khung xem ảnh lớn.
     download: "Tải ảnh",
   },

@@ -62,7 +62,7 @@ function folderIdFromUrl_(s) {
 
 function photoUrls_(fileId) {
   const base = 'https://lh3.googleusercontent.com/d/' + fileId;
-  return { thumb: base + '=w1200', full: base + '=w2400' };
+  return { thumb: base + '=w800', full: base + '=w2400' };
 }
 
 /** Tên tiêu đề (đã trim) -> chỉ số cột, để không phụ thuộc thứ tự cột. */

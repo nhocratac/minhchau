@@ -87,10 +87,10 @@
       b.style.setProperty("--i", i);
       b.setAttribute("aria-label", "Xem ảnh " + (i + 1) + "/" + photos.length);
       var img = document.createElement("img");
-      img.src = p.thumb;
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
+      Mem.loadImage(img, p.thumb);
       b.appendChild(img);
       b.addEventListener("click", function () { Mem.openLightbox(photos, i); });
       grid.appendChild(b);
