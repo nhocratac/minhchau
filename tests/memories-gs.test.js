@@ -261,3 +261,14 @@ test('createGuestFolders báo lỗi khi thiếu THANKS_FOLDER_ID', () => {
   assert.match(g.__alerts[0], /THANKS_FOLDER_ID/);
   assert.strictEqual(g.__sheets.CamOn.rows[1][2], '');
 });
+
+test('createGuestFolders bỏ qua thư mục đã ở Thùng rác (tạo mới thay vì dùng lại)', () => {
+  const g = loadGas(FILES, {
+    sheets: { CamOn: [HEAD, ['Hà Vy', '', '', '', '', '']] },
+    folders: { T: [] },
+    subfolders: { T: [{ id: 'TRASHED', name: 'Hà Vy', trashed: true }] },
+    props: { THANKS_FOLDER_ID: 'T' },
+  });
+  g.createGuestFolders();
+  assert.match(g.__sheets.CamOn.rows[1][2], /folders\/NEW_1$/);
+});

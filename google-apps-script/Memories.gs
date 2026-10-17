@@ -241,6 +241,7 @@ function createGuestFolders() {
   const it = parent.getFolders();
   while (it.hasNext()) {
     const f = it.next();
+    if (f.isTrashed()) continue;   // thư mục đã xoá (nằm trong Thùng rác) thì không dùng lại
     existing[f.getName().trim()] = f.getUrl();
   }
 

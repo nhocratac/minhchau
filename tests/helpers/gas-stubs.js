@@ -95,7 +95,7 @@ function loadGas(files, opts) {
               hasNext: () => i < list.length,
               next() {
                 const f = list[i++];
-                return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id) };
+                return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id), isTrashed: () => !!f.trashed };
               },
             };
           },
@@ -104,7 +104,7 @@ function loadGas(files, opts) {
             created.push(f);
             (subfolders[id] = subfolders[id] || []).push(f);
             folders[f.id] = [];
-            return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id) };
+            return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id), isTrashed: () => false };
           },
           getFiles() {
             let i = 0;
