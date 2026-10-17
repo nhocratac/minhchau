@@ -46,7 +46,7 @@
   function request(url, init, opts) {
     opts = opts || {};
     var doFetch = opts.fetch || (root.fetch && root.fetch.bind(root));
-    var timeoutMs = opts.timeoutMs == null ? 15000 : opts.timeoutMs;
+    var timeoutMs = opts.timeoutMs == null ? 30000 : opts.timeoutMs;   // lần đầu Apps Script "thức dậy" + đọc Drive có thể mất ~15 giây
     var NET = function () { return { ok: false, error: "network" }; };
     var timer;
     var timeout = new Promise(function (resolve) {
@@ -127,6 +127,7 @@
     var tries = 0;
     var token = {};
     img._memToken = token;
+    img.referrerPolicy = "no-referrer";   // Google chặn ảnh Drive khi có Referer từ trang khác
     img.onerror = function () {
       if (img._memToken !== token) return;          // ảnh đã được đổi sang ảnh khác
       if (tries >= RETRY_DELAYS.length) { img.onerror = null; return; }

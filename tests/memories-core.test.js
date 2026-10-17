@@ -85,6 +85,7 @@ test("loadImage thử lại 3 lần (1,5s / 4s / 10s) rồi dừng", () => {
   const url = "https://lh3.googleusercontent.com/d/ID=w800";
   M.loadImage(img, url, { setTimeout: fakeTimer });
   assert.strictEqual(img.src, url);
+  assert.strictEqual(img.referrerPolicy, "no-referrer");
   for (let k = 0; k < 3; k++) { img.onerror(); assert.strictEqual(img.src, url); }
   img.onerror();
   assert.strictEqual(img.onerror, null);
