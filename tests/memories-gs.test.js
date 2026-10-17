@@ -228,3 +228,36 @@ test('generateLinks ép cột Mã là văn bản (@)', () => {
   g.generateLinks();
   assert.ok(g.__sheets.CamOn.numberFormats.some((f) => f[1] === 4 && f[4] === '@'));
 });
+
+test('createGuestFolders tạo thư mục cho khách chưa có link, dùng lại thư mục trùng tên', () => {
+  const g = loadGas(FILES, {
+    sheets: { CamOn: [HEAD,
+      ['Hà Vy', '', '', '', '', ''],
+      ['Nhất Nguyên', '', 'https://drive.google.com/drive/folders/OLD', '', '', ''],
+      ['Bé Thanh ', '', '', '', '', ''],
+      ['', 'chỉ có lời chúc', '', '', '', ''],
+    ] },
+    folders: { T: [] },
+    subfolders: { T: [{ id: 'EXIST', name: 'Bé Thanh' }] },
+    props: { THANKS_FOLDER_ID: 'T' },
+  });
+  g.createGuestFolders();
+  const rows = g.__sheets.CamOn.rows;
+  const url = (id) => 'https://drive.google.com/drive/folders/' + id;
+  assert.match(rows[1][2], /^https:\/\/drive\.google\.com\/drive\/folders\/NEW_/);
+  assert.strictEqual(rows[2][2], url('OLD'));          // đã có link thì giữ nguyên
+  assert.strictEqual(rows[3][2], url('EXIST'));        // trùng tên thì dùng lại, không tạo mới
+  assert.strictEqual(rows[4][2], '');                  // không có tên thì bỏ qua
+  assert.deepStrictEqual(g.__created.map((f) => f.name), ['Hà Vy']);
+  assert.match(g.__alerts[0], /1 thư mục mới/);
+  // Bấm lần 2 không tạo thêm
+  g.createGuestFolders();
+  assert.strictEqual(g.__created.length, 1);
+});
+
+test('createGuestFolders báo lỗi khi thiếu THANKS_FOLDER_ID', () => {
+  const g = loadGas(FILES, { sheets: { CamOn: [HEAD, ['A', '', '', '', '', '']] } });
+  g.createGuestFolders();
+  assert.match(g.__alerts[0], /THANKS_FOLDER_ID/);
+  assert.strictEqual(g.__sheets.CamOn.rows[1][2], '');
+});

@@ -6,7 +6,8 @@
  *  - POST action=album&password=<...>  : album chia phần theo thư mục con, có mật khẩu
  *  Dữ liệu khách nằm ở tab "CamOn" (xem THANKS_HEADERS). Mật khẩu album chỉ
  *  lưu trong Project Settings > Script Properties (ALBUM_PASSWORD), cùng
- *  ALBUM_FOLDER_ID là ID thư mục Drive chứa ảnh album.
+ *  ALBUM_FOLDER_ID là ID thư mục Drive chứa ảnh album. THANKS_FOLDER_ID (tuỳ chọn)
+ *  là ID thư mục "Thiệp cảm ơn", dùng cho menu "Tạo thư mục cho khách".
  */
 
 const THANKS_SHEET = 'CamOn';
@@ -25,6 +26,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Thiệp cảm ơn')
     .addItem('Cài đặt tab CamOn', 'setupThanks')
+    .addItem('Tạo thư mục cho khách', 'createGuestFolders')
     .addItem('Tạo mã & link', 'generateLinks')
     .addItem('Làm mới cache ảnh', 'clearMemoriesCache')
     .addItem('Bật chia sẻ ảnh (dự phòng)', 'shareAllPhotos')
@@ -213,6 +215,50 @@ function handleAlbumPost_(password) {
     try { cache.put('album:sections', JSON.stringify(sections), CACHE_SECONDS); } catch (err) { /* bỏ qua */ }
   }
   return { ok: true, sections: sections };
+}
+
+/**
+ * Tạo thư mục con (đặt theo Tên gọi) trong thư mục "Thiệp cảm ơn" cho mỗi khách
+ * chưa có link ở cột "Thư mục ảnh", rồi điền link vào. Thư mục trùng tên thì dùng lại,
+ * nên bấm nhiều lần không tạo trùng. Thư mục mới thừa hưởng quyền chia sẻ của thư mục cha.
+ */
+function createGuestFolders() {
+  const ui = SpreadsheetApp.getUi();
+  const parentId = PropertiesService.getScriptProperties().getProperty('THANKS_FOLDER_ID');
+  if (!parentId) {
+    ui.alert('Chưa có THANKS_FOLDER_ID. Vào Cài đặt dự án → Thuộc tính tập lệnh, thêm THANKS_FOLDER_ID = ID thư mục "Thiệp cảm ơn".');
+    return;
+  }
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(THANKS_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) { ui.alert('Tab CamOn chưa có khách nào.'); return; }
+  const lastCol = sheet.getLastColumn();
+  const idx = headerIndex_(sheet.getRange(1, 1, 1, lastCol).getValues()[0]);
+  if (idx['Tên gọi'] === undefined || idx['Thư mục ảnh'] === undefined) {
+    throw new Error('Thiếu cột Tên gọi / Thư mục ảnh — chạy "Cài đặt tab CamOn" trước.');
+  }
+  const parent = DriveApp.getFolderById(parentId);
+  const existing = {};
+  const it = parent.getFolders();
+  while (it.hasNext()) {
+    const f = it.next();
+    existing[f.getName().trim()] = f.getUrl();
+  }
+
+  const n = sheet.getLastRow() - 1;
+  const rows = sheet.getRange(2, 1, n, lastCol).getValues();
+  let made = 0, reused = 0;
+  const links = rows.map(function (r) {
+    const current = String(r[idx['Thư mục ảnh']]).trim();
+    const name = String(r[idx['Tên gọi']]).trim();
+    if (current || !name) return [current];
+    if (existing[name]) { reused++; return [existing[name]]; }
+    const url = parent.createFolder(name).getUrl();
+    existing[name] = url;
+    made++;
+    return [url];
+  });
+  sheet.getRange(2, idx['Thư mục ảnh'] + 1, n, 1).setValues(links);
+  ui.alert('Đã tạo ' + made + ' thư mục mới, dùng lại ' + reused + ' thư mục có sẵn.');
 }
 
 /**

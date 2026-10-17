@@ -165,6 +165,7 @@ Hai trang mới, dùng chung Google Sheet và Apps Script với RSVP:
 6. Vào **Cài đặt dự án** (Project Settings, biểu tượng bánh răng) → **Thuộc tính tập lệnh** (Script Properties) → thêm hai dòng:
    - `ALBUM_PASSWORD`: mật khẩu album (tự đặt).
    - `ALBUM_FOLDER_ID`: ID của thư mục cha **Album** (đoạn cuối của link, sau `/folders/`).
+   - `THANKS_FOLDER_ID` (tuỳ chọn): ID của thư mục **Thiệp cảm ơn**, để dùng nút **Tạo thư mục cho khách** ở mục 9.2.
 7. ⚠️ Bước 5 (chạy `setupThanks` và cấp quyền Drive) **phải xong trước bước này**, nếu không toàn bộ web app, kể cả RSVP, sẽ báo lỗi xin quyền. Bấm **Triển khai → Quản lý triển khai → ✏️** (sửa triển khai hiện có) → *Phiên bản*: **Phiên bản mới** → **Triển khai**. **Không** tạo triển khai mới, vì URL sẽ đổi và RSVP ngừng chạy.
 8. Trong `assets/js/config.js`, đặt `memories.endpoint` bằng **đúng URL** của `rsvp.endpoint` (dạng `https://script.google.com/macros/s/…/exec`).
 9. Tải lại Google Sheet, sẽ thấy menu **Thiệp cảm ơn**.
@@ -172,6 +173,10 @@ Hai trang mới, dùng chung Google Sheet và Apps Script với RSVP:
 Lưu ý bảo mật: repo này là **public**, vì vậy **không** ghi mật khẩu album hay ID thư mục vào code, README hay config.js. Chúng chỉ nằm trong Script Properties. Chỉ gửi link `album.html` và mật khẩu riêng cho gia đình (nhắn tin riêng, không đăng nhóm công khai). Nhập sai mật khẩu 10 lần thì album khóa khoảng 10 phút.
 
 ### 9.2. Châu làm cho mỗi khách
+
+**Cách nhanh cho nhiều khách:** dán danh sách tên vào cột `Tên gọi` (mỗi tên một dòng), bấm **Thiệp cảm ơn → Tạo thư mục cho khách**. Script tạo sẵn trong **Thiệp cảm ơn** một thư mục cho mỗi khách và tự điền cột `Thư mục ảnh`; dòng đã có link thì bỏ qua, thư mục trùng tên thì dùng lại. Sau đó chỉ cần bỏ ảnh vào từng thư mục, điền `Lời chúc`, rồi làm bước 3–4 bên dưới.
+
+Hoặc làm tay từng khách:
 
 1. Trong thư mục **Thiệp cảm ơn** trên Drive, tạo thư mục con theo tên khách và bỏ vào 2–3 ảnh **JPG**. Ảnh chụp nhóm thì sao chép vào thư mục của từng người.
 2. Mở Google Sheet, vào trang tính **CamOn**, điền một dòng cho khách:

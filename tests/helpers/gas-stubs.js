@@ -65,6 +65,8 @@ function loadGas(files, opts) {
   const cache = new Map();
   const alerts = [];
   const shared = [];
+  const created = [];
+  const folderUrl = (id) => 'https://drive.google.com/drive/folders/' + id;
 
   const ss = {
     getSheetByName: (n) => sheets[n] || null,
@@ -93,9 +95,16 @@ function loadGas(files, opts) {
               hasNext: () => i < list.length,
               next() {
                 const f = list[i++];
-                return { getId: () => f.id, getName: () => f.name };
+                return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id) };
               },
             };
+          },
+          createFolder(name) {
+            const f = { id: 'NEW_' + (created.length + 1), name: name };
+            created.push(f);
+            (subfolders[id] = subfolders[id] || []).push(f);
+            folders[f.id] = [];
+            return { getId: () => f.id, getName: () => f.name, getUrl: () => folderUrl(f.id) };
           },
           getFiles() {
             let i = 0;
@@ -146,6 +155,7 @@ function loadGas(files, opts) {
   ctx.__cache = cache;
   ctx.__alerts = alerts;
   ctx.__shared = shared;
+  ctx.__created = created;
   ctx.__get = (expr) => vm.runInContext(expr, ctx);
   return ctx;
 }
